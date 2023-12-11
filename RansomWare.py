@@ -1,5 +1,5 @@
 # Local Imports
-import os  # to get system root
+import os
 import webbrowser  # to load browser to go to specific website eg bitcoin
 import ctypes  # so we can interact with windows dlls and change windows background etc
 import urllib.request  # used for downloading and saving background image
