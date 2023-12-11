@@ -28,4 +28,3 @@ print(f'> Private key: {private_key}')
 print(f'> Private decrypter: {private_crypter}')
 print(f'> Decrypted fernet key: {dec_fernet_key}')
 print(f'> Decryption Completed')
-
