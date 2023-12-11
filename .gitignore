@@ -165,6 +165,7 @@ public.pem
 RANSOM_NOTE.txt
 fernet_key.txt
 ransom.html
-executable-ransom_final.bat
+_.bat
 executable-ransom1.bat
 EMAIL_ME.txt
+executable-ransom_final.bat

