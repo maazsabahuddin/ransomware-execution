@@ -1,11 +1,15 @@
+# Python Imports
+import os
+
+# Framework Imports
 from Crypto.PublicKey import RSA
-from Crypto.Random import get_random_bytes
-from Crypto.Cipher import AES, PKCS1_OAEP
+from Crypto.Cipher import PKCS1_OAEP
 
+sysRoot = os.path.expanduser('~')
+desktop = f"{sysRoot}\\Desktop"
+print(sysRoot)
 
-
-
-with open('EMAIL_ME.txt', 'rb') as f:
+with open(f'{desktop}\\EMAIL_ME.txt', 'rb') as f:
     enc_fernet_key = f.read()
     print(enc_fernet_key)
 
@@ -17,11 +21,11 @@ private_crypter = PKCS1_OAEP.new(private_key)
 
 # Decrypted session key
 dec_fernet_key = private_crypter.decrypt(enc_fernet_key)
-with open('PUT_ME_ON_DESKTOP.txt', 'wb') as f:
+with open(f'{desktop}\\PUT_ME_ON_DESKTOP.txt', 'wb') as f:
     f.write(dec_fernet_key)
 
 print(f'> Private key: {private_key}')
 print(f'> Private decrypter: {private_crypter}')
 print(f'> Decrypted fernet key: {dec_fernet_key}')
-print('> Decryption Completed')
+print(f'> Decryption Completed')
 

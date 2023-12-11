@@ -1,4 +1,4 @@
 cryptography
 pycryptodome
 requests
-win32gui
+pywin32
